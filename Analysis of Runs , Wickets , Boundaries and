@@ -14,3 +14,273 @@ Q) FIND THE NUMBER OF DOT BALLS DURING ENTIRE COURSE
 
 a= df.where('total_runs == 0')
 a.count()                         
+---------------------------------------------------------------------------------------------------
+
+Q) FIND OUT THE PLAYERS WHO HAVE SCORED MORE THAN 5000 RUNS IN ENTIRE IPL HISTORY
+
+a = df.groupby('batsman').sum('batsman_runs')
+b = a.filter('sum(batsman_runs) > 5000')
+b.show()
+
++---------+-----------------+
+|  batsman|sum(batsman_runs)|
++---------+-----------------+
+|RG Sharma|             5230|
+| S Dhawan|             5197|
+| SK Raina|             5368|
+|DA Warner|             5254|
+|  V Kohli|             5878|
++---------+-----------------+
+
+---------------------------------------------------------------------------------------------------
+
+Q)  HOW MANY CENTURIES HAVE BEEN SCORED IN IPL 
+
+a = df.groupby('id','batsman').sum('batsman_runs')
+b = a.filter('sum(batsman_runs) >= 100')
+b.count()
+
+/* 63 CENTURIES SO FAR */
+---------------------------------------------------------------------------------------------------
+
+Q) FIND THE MAXIMUM SCORE BY BATSMAN IN SINGLE INNING 
+
+a = df.groupby('id','batsman').sum('batsman_runs')
+b = a.filter('sum(batsman_runs) >= 100')
+b.agg({'sum(batsman_runs)' : 'max'}).show()
+
+/* 175 runs */
+
+---------------------------------------------------------------------------------------------------
+
+Q) FIND THE NUMBER OF PLAYERS WHO HAVE SCORED CENTURY (DO NOT COUNT PLAYER TWICE IF HE HAS SCORED MORE THAN 1 CENTURY)
+
+a = df.groupby('id','batsman').sum('batsman_runs')
+b = a.filter('sum(batsman_runs) >= 100')
+c = b.select('batsman').distinct()
+c.count()
+
+/* 36 PLAYERS HAVE SCORED CENTURY */
+
+---------------------------------------------------------------------------------------------------
+
+Q) FIND THE PLAYER HWO HAVE SCORED MAXIMUM NUMBER OF CENTURIES AND MENTION NUMBER OF CENTURIES
+
+a = df.groupby('id','batsman').sum('batsman_runs')
+b = a.filter('sum(batsman_runs) >= 100')
+c = b.groupBy('batsman').count()
+d = c.sort(("count"))
+d.tail(1)
+---------------------------------------------------------------------------------------------------
+
+Q) FIND the 5 BOWLERS WHO HAVE GIVE MAXIMUM NUMBER OF WIDE AND NO BALLS
+
+a = df.filter((df.extras_type == 'wides') | (df.extras_type == 'noballs'))
+b = a.groupby('bowler').count().sort(('count'))
+b.tail(5)
+
+bowler='SR Watson', count=108),
+ Row(bowler='P Kumar', count=113),
+ Row(bowler='UT Yadav', count=119),
+ Row(bowler='DJ Bravo', count=134),
+ Row(bowler='SL Malinga', count=146)
+
+---------------------------------------------------------------------------------------------------
+
+Q) FIND THE 5 BATSMAN WHO HAVE FACED MOST BALLS 
+
+a = df.groupby('batsman').count().sort(('count')) 
+a.tail(5)
+
+[Row(batsman='DA Warner', count=3819),
+ Row(batsman='SK Raina', count=4041),
+ Row(batsman='RG Sharma', count=4088),
+ Row(batsman='S Dhawan', count=4208),
+ Row(batsman='V Kohli', count=4609)]
+
+---------------------------------------------------------------------------------------------------
+
+Q) HOW MANY MATCHES PAYED BY VIRAT KOHLI
+
+a = df.filter(df.batsman == 'V Kohli')
+b= a.select('id').distinct()
+b.count()                            /* 184 MATCHES */
+---------------------------------------------------------------------------------------------------
+
+Q) FIND THE TOP 10 INNINGS OF VIRAT KOHLI
+
+a = df.groupby('id','batsman').sum('batsman_runs')
+b = a.filter(a.batsman == 'V Kohli')
+c = b.sort(('sum(batsman_runs)'))
+c.tail(10)
+
+/* this code can be used to find the top 10 innings of any player , just replace name of 'V Kohli' and put other name */ 
+---------------------------------------------------------------------------------------------------
+
+Q) FIND THR TOTAL RUNS SCORED BY CHRIS GAYLE
+
+a = df.filter(a.batsman == 'CH Gayle')
+b = a.groupby('batsman').sum('batsman_runs')
+b.show()      
+
+/* or */
+
+a = df.groupby('batsman').sum('batsman_runs')
+b = a.filter(a.batsman == 'V Kohli')
+b.show()
+
+---------------------------------------------------------------------------------------------------
+Q) FIND THE NUMBER OF BOUNDRIES SCORED BY C GAYLE
+
+a = df.filter(a.batsman == 'CH Gayle')
+b = a.filter((a.batsman_runs == 6) | (a.batsman_runs == 4))
+b.count()                                                              /*  733 */ 
+---------------------------------------------------------------------------------------------------
+
+Q) FIND THE TOP 5 INNINGS AND BATSMAN WHERE HIGHEST NUMBER OF BOUNDRIES WERE SCORED
+
+a = df.filter((df.batsman_runs == 6) | (df.batsman_runs == 4))
+b = a.groupby('id','batsman').count()
+c = b.sort(('count')).tail(5);
+c
+
+[Row(id=980987, batsman='AB de Villiers', count=22),
+ Row(id=1136602, batsman='RR Pant', count=22),
+ Row(id=335982, batsman='BB McCullum', count=23),
+ Row(id=829795, batsman='AB de Villiers', count=23),
+ Row(id=598027, batsman='CH Gayle', count=30)]
+
+---------------------------------------------------------------------------------------------------
+
+Q) FIND THE TOP 5 INNINGS WHERE THE SCORE WAS MAXIMUM , MENTION TEAMS , INNINGS , ID
+
+a = df.groupby('id', 'inning', 'batting_team').sum('total_runs').sort(('sum(total_runs)')).tail(5)
+a 
+
+[Row(id=335983, inning=1, batting_team='Chennai Super Kings', sum(total_runs)=240),
+ Row(id=1136604, inning=1, batting_team='Kolkata Knight Riders', sum(total_runs)=245),
+ Row(id=419137, inning=1, batting_team='Chennai Super Kings', sum(total_runs)=246),
+ Row(id=980987, inning=1, batting_team='Royal Challengers Bangalore', sum(total_runs)=248),
+ Row(id=598027, inning=1, batting_team='Royal Challengers Bangalore', sum(total_runs)=263)]
+---------------------------------------------------------------------------------------------------
+
+Q) FIND THE HIGHRST WICKET TAKERS , LIST TOP 5
+
+a = df.filter(df.is_wicket == 1)
+b = a.groupby('bowler').count().sort(('count')).tail(5)
+b
+
+[Row(bowler='Harbhajan Singh', count=161),
+ Row(bowler='PP Chawla', count=164),
+ Row(bowler='A Mishra', count=169),
+ Row(bowler='DJ Bravo', count=175),
+ Row(bowler='SL Malinga', count=188)]
+---------------------------------------------------------------------------------------------------
+
+Q) FIND THE DATA ABOUT HOW 'V KOHLI'  GOT OUT
+
+a = df.filter((df.is_wicket == 1) & (df.batsman == 'V Kohli'))
+b = a.groupby('dismissal_kind').count().sort(('count'))
+b.show()
+
++-----------------+-----+
+|   dismissal_kind|count|
++-----------------+-----+
+|          stumped|    3|
+|caught and bowled|    3|
+|              lbw|    7|
+|          run out|   15|
+|           bowled|   30|
+|           caught|  105|
++-----------------+-----+
+------------------------------------------------------------------------------------------------------------
+
+Q) FIND THE TOP 4 TEAMS AGAINS WHICH V KOHLI HAVE SCORED MAXIMUM RUNS
+
+a = df.filter(df.batsman == 'V Kohli')
+b = a.groupby('bowling_team').sum('total_runs').sort('sum(total_runs)').tail(4)
+b
+
+/* or */
+
+a = df.filter(df.batsman == 'V Kohli')
+b = a.groupby('bowling_team').sum('total_runs').sort('sum(total_runs)', ascending = False).head(4)
+b
+
+
+[Row(bowling_team='Kings XI Punjab', sum(total_runs)=709),
+ Row(bowling_team='Kolkata Knight Riders', sum(total_runs)=738),
+ Row(bowling_team='Delhi Daredevils', sum(total_runs)=787),
+ Row(bowling_team='Chennai Super Kings', sum(total_runs)=924)]
+
+------------------------------------------------------------------------------------------------------------
+Q) FIND THE TOP 4 WICKET CATCHER / FIELDER 
+
+df.groupby('fielder').count().sort(('count'), ascending = False).head(4)
+
+Row(fielder='MS Dhoni', count=164),
+ Row(fielder='KD Karthik', count=156),
+ Row(fielder='RV Uthappa', count=123),
+ Row(fielder='AB de Villiers', count=117)]
+------------------------------------------------------------------------------------------------------------
+
+Q)  TOP 5 HIGHEST RUN SCORED IN INNING = 2
+
+a = df.filter(df.inning == 2)
+b= a.groupby('batting_team', 'id').sum('total_runs').sort(('sum(total_runs)'), ascending = False).head(5)
+b
+
+[Row(batting_team='Rajasthan Royals', id=1216527, sum(total_runs)=226),
+ Row(batting_team='Rajasthan Royals', id=419137, sum(total_runs)=223),
+ Row(batting_team='Mumbai Indians', id=1082641, sum(total_runs)=223),
+ Row(batting_team='Rajasthan Royals', id=335990, sum(total_runs)=217),
+ Row(batting_team='Delhi Daredevils', id=1082632, sum(total_runs)=214)]
+
+/* ALL THE ABOVE MATCHES HAVE BEEN LOST BY TEAM PLAYING IN INNING 2 */
+/* HIGHEST RUNS MADE WHILE CHASING IS 226 , MEANS IF FIRST INNING TEAM CAN SCORE 226+, IT WILL HAVE HIGHEST CHANCES OF WINNING */
+------------------------------------------------------------------------------------------------------------
+Q) FIND THE HIGHEST SCORES WHEN PLAYING IN FIRST INNINGS
+
+c = df.filter(df.inning == 1)
+d  = c.groupby('batting_team', 'id').sum('total_runs').sort(('sum(total_runs)'), ascending = False).head(5)
+d
+
+ [Row(batting_team='Royal Challengers Bangalore', id=598027, sum(total_runs)=263),
+ Row(batting_team='Royal Challengers Bangalore', id=980987, sum(total_runs)=248),
+ Row(batting_team='Chennai Super Kings', id=419137, sum(total_runs)=246),
+ Row(batting_team='Kolkata Knight Riders', id=1136604, sum(total_runs)=245),
+ Row(batting_team='Chennai Super Kings', id=335983, sum(total_runs)=240)]
+------------------------------------------------------------------------------------------------------------
+
+Q) FIND THE 5 MOST EXPENSIVE OVERS AS COLLECTIVELY
+
+a = df.groupby('over').sum('total_runs').sort(('sum(total_runs)'), ascending = False).head(5)
+a
+
+[Row(over=17, sum(total_runs)=14307),
+ Row(over=16, sum(total_runs)=13989),
+ Row(over=18, sum(total_runs)=13804),
+ Row(over=5, sum(total_runs)=13470),
+ Row(over=15, sum(total_runs)=13449)]
+
+/* HERE WE CAN SAY THAT OVERS 15,16,17,18 ARE VERY EXPENSIVE */
+------------------------------------------------------------------------------------------------------------
+
+Q) FIND THE TOP 5 BATSMAN AND INNINGS WHERE HIGHEST NUMBER OF SIXERS WERE HIT
+
+a  = df.filter(df.batsman_runs == 6)
+b = a.groupBy('id','batsman').count().sort(('count'), ascending = False)
+b.show(5)
+
++-------+--------------+-----+
+|     id|       batsman|count|
++-------+--------------+-----+
+| 598027|      CH Gayle|   17|
+| 335982|   BB McCullum|   13|
+| 548372|      CH Gayle|   13|
+| 829785|      CH Gayle|   12|
+| 980987|AB de Villiers|   12|
+------------------------------------------------------------------------------------------------------------
+
+Q) 
+
