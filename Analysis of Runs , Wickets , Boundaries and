@@ -1,0 +1,16 @@
+Q) FIND THE TOTAL NUMBER OF MATCHES FOR WHICH DATA IS PRESENT IN THE DATASET
+
+df.select('id').distinct().count()     /* IN DATASET EVERY MATCH IS REPRESENTED BY UNIQUE ID , 
+                                          WE WILL BE USING IT FOR FINDING THE ANSWER */
+---------------------------------------------------------------------------------------------------
+
+Q) FIND THE NUMBER OF SIX HIT DURING THE ENTIRE COURSE OF IPL DATASET
+
+a= df.where('batsman_runs == 6')
+a.count()                             /* 8902 is the answer */
+---------------------------------------------------------------------------------------------------
+
+Q) FIND THE NUMBER OF DOT BALLS DURING ENTIRE COURSE 
+
+a= df.where('total_runs == 0')
+a.count()                         
