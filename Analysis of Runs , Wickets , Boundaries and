@@ -387,4 +387,222 @@ a.groupby('inning').count().show()
 +------+-----+
 ------------------------------------------------------------------------------------------------------------
 
+Q) FIND THE TOTAL CENTURIES HAVE BEEN SCORED IN INNING 1 AND INNING 2
+
+a = df.filter('inning == 1')
+b = a.groupby(['id','batsman']).sum('batsman_runs')
+first_inning_centuries = b.filter('sum(batsman_runs) >= 100').count()
+first_inning_centuries                                                       /* 45 centuries in first inning */
+
+a = df.filter('inning == 2')
+b = a.groupby(['id','batsman']).sum('batsman_runs')
+second_inning_centuries = b.filter('sum(batsman_runs) >= 100').count()
+second_inning_centuries                                                   /* 18 centuries in second inning */
+------------------------------------------------------------------------------------------------------------
+
+Q) FIND THE WICKETS TAKEN IN BOTH INNINGS 
+
+a = df.filter('is_wicket == 1')
+b = a.groupby('inning').count()
+b.show()
+
++------+-----+
+|inning|count|
++------+-----+
+|     1| 4938|
+|     2| 4557|
++------+-----+
+------------------------------------------------------------------------------------------------------------
+
+Q) FIND THE 5 TEAMS WHICH HAVE TAKEN HIGHEST WICKETS
+
+a = df.filter('is_wicket == 1')
+a.groupby('bowling_team').count().orderBy('count').tail(5)
+
+Out[90]: [Row(bowling_team='Kings XI Punjab', count=1070),
+ Row(bowling_team='Kolkata Knight Riders', count=1079),
+ Row(bowling_team='Chennai Super Kings', count=1104),
+ Row(bowling_team='Royal Challengers Bangalore', count=1115),
+ Row(bowling_team='Mumbai Indians', count=1237)]
+------------------------------------------------------------------------------------------------------------
+
+Q) FIND THE TEAM WHICH HAS TAKEN HIGHEST HIGHEST WICKETS IN INNINGS 2
+
+a = df.filter('is_wicket == 1')
+b = a.filter('inning == 2')
+b.groupby('bowling_team').count().orderBy('count').tail(5)
+
+[Row(bowling_team='Kolkata Knight Riders', count=486),
+ Row(bowling_team='Royal Challengers Bangalore', count=515),
+ Row(bowling_team='Kings XI Punjab', count=519),
+ Row(bowling_team='Chennai Super Kings', count=571),
+ Row(bowling_team='Mumbai Indians', count=671)]
+
+------------------------------------------------------------------------------------------------------------
+
+Q) FIND THE TEAMS WHICH HAVE SCORED HIGHEST RUNS IN LAST 5 OVERS
+
+a = df.filter(df.over.isin(15,16,17,18,19))
+a.groupby('batting_team').sum('total_runs').orderBy('sum(total_runs)').tail(5)
+
+[Row(batting_team='Kolkata Knight Riders', sum(total_runs)=7777),
+ Row(batting_team='Kings XI Punjab', sum(total_runs)=7875),
+ Row(batting_team='Chennai Super Kings', sum(total_runs)=8180),
+ Row(batting_team='Royal Challengers Bangalore', sum(total_runs)=8495),
+ Row(batting_team='Mumbai Indians', sum(total_runs)=9312)]
+
+------------------------------------------------------------------------------------------------------------
+
+Q) FIND THE TEAMS WHICH HAVE SCORED HIGHEST RUNS IN LAST 5 OVERS IN SINGLE INNINGS
+
+a = df.filter(df.over.isin(15,16,17,18,19))
+a.groupby(['id', 'over', 'batting_team']).sum('total_runs').orderBy('sum(total_runs)').tail(5)
+
+ [Row(id=1082592, over=19, batting_team='Mumbai Indians', sum(total_runs)=30),
+ Row(id=980987, over=18, batting_team='Royal Challengers Bangalore', sum(total_runs)=30),
+ Row(id=1216527, over=17, batting_team='Rajasthan Royals', sum(total_runs)=30),
+ Row(id=1216493, over=19, batting_team='Delhi Capitals', sum(total_runs)=30),
+ Row(id=1216496, over=19, batting_team='Rajasthan Royals', sum(total_runs)=30)]
+------------------------------------------------------------------------------------------------------------
+
+Q) FIND THE HIGHEST RUN SCORED BY TEAM IN SINGLE OVER , MENTION BOWLING TEAM AND OTHER INFO
+
+ df.groupby(['id','over','batting_team','bowling_team']).sum('total_runs').orderBy('sum(total_runs)').tail(1)
+
+[Row(id=501247, over=2, batting_team='Royal Challengers Bangalore', bowling_team='Kochi Tuskers Kerala', sum(total_runs)=37)]
+
+------------------------------------------------------------------------------------------------------------
+
+Q) FIND THE TOP 5 OVERS WHERE MOST OF THE WICKETS WERE TAKEN
+
+a = df.filter('is_wicket == 1')
+a.groupby('over').count().orderBy('count').tail(5)
+
+[Row(over=15, count=544),
+ Row(over=16, count=572),
+ Row(over=17, count=733),
+ Row(over=18, count=750),
+ Row(over=19, count=954)]
+------------------------------------------------------------------------------------------------------------
+
+Q) FIND THE TOP 5 BATSMAN WHO HAS SCORED MAXIMUM RUNS IN LAST 5 OVERS
+
+a = df.filter(df.over.isin(15,16,17,18,19))
+a.groupby('batsman').sum('batsman_runs').orderBy('sum(batsman_runs)').tail(5)
+
+ [Row(batsman='V Kohli', sum(batsman_runs)=1265),
+ Row(batsman='RG Sharma', sum(batsman_runs)=1478),
+ Row(batsman='AB de Villiers', sum(batsman_runs)=1662),
+ Row(batsman='KA Pollard', sum(batsman_runs)=1782),
+ Row(batsman='MS Dhoni', sum(batsman_runs)=2769)]
+------------------------------------------------------------------------------------------------------------
+
+Q) FIND THE TOP 5 BATSMAN WHO HAS SCORED MAXIMUM RUNS IN FIRST 5 OVERS
+
+a = df.filter(df.over.isin(0,1,2,3,4,5))
+a.groupby('batsman').sum('batsman_runs').orderBy('sum(batsman_runs)').tail(5)
+
+ [Row(batsman='AM Rahane', sum(batsman_runs)=1949),
+ Row(batsman='G Gambhir', sum(batsman_runs)=2277),
+ Row(batsman='CH Gayle', sum(batsman_runs)=2305),
+ Row(batsman='DA Warner', sum(batsman_runs)=2572),
+ Row(batsman='S Dhawan', sum(batsman_runs)=2639)]
+------------------------------------------------------------------------------------------------------------
+
+Q) FIND THE MATCH IDS WHERE  MORE THAN 230 BALLS WERE PLAYED
+
+a = df.groupby('id').count()
+b = a.filter('count >= 230')
+b.select('id').distinct().count()
+
+/* 675 GAMES WERE PLAYED WHERE TOTAL BALLS WERE MORE THAN 230 */
+------------------------------------------------------------------------------------------------------------
+Q) FIND THE MATCH IDS WHERE ALL 40 (20+20) OVERS WERE PLAYED 
+
+a = df.groupby('id').count()
+b = a.filter('count >= 240')
+b.select('id').distinct().count()
+
+/* 535 GAMES WHERE MORE THAN 240 BALLS WERE PLAYED */
+------------------------------------------------------------------------------------------------------------
+
+Q) WRITE A QUERY TO GET ENTRIRE HISTORY OF KINGS XI PUNJAB TOTAL RUNS SCORED ETC
+
+a = df.filter(df.batting_team == 'Kings XI Punjab')
+a.groupby(['id','bowling_team']).sum('total_runs').orderBy('sum(total_runs)').show()
+
+829785|Royal Challengers...|             88|
+| 392234| Chennai Super Kings|             92|
+| 336022|    Delhi Daredevils|             94|
+| 829753| Chennai Super Kings|             95|
+| 598003|       Pune Warriors|            100|
+| 392183|    Delhi Daredevils|            104|
+
+------------------------------------------------------------------------------------------------------------
+
+Q) WRITE A QUERY TO GET ENTRIRE HISTORY OF KINGS XI PUNJAB TOTAL RUNS SCORED ETC AND ALSO ADD IN HOW MNAY BALLS 
+WERE PLAYED IN THAT INNING
+
+a = df.filter(df.batting_team == 'Kings XI Punjab')
+runs = a.groupby(['id','bowling_team']).sum('total_runs').orderBy('sum(total_runs)')
+balls = a.groupby(['id']).count()
+
+joined_df = runs.join(balls , runs.id == balls.id)
+joined_df.show()
+
++------+--------------------+---------------+------+-----+
+|    id|        bowling_team|sum(total_runs)|    id|count|
++------+--------------------+---------------+------+-----+
+|392222|      Mumbai Indians|            119|392222|  130|
+|392226|    Delhi Daredevils|            123|392226|  122|
+|392186|Kolkata Knight Ri...|            158|392186|  127|
+|419112|Royal Challengers...|            203|419112|  130|
+|335991|      Mumbai Indians|            182|335991|  124|
+|419146|      Mumbai Indians|            158|419146|  119|
+|392234| Chennai Super Kings|             92|392234|  123|
+|419117|     Deccan Chargers|            164|419117|  122|
+------------------------------------------------------------------------------------------------------------
+
+Q) FIND THE MATCH ID , OVER WHERE EXTRA BALLS WERE MINIMUM.
+
+a = df.filter('extra_runs == 0')
+b = a.groupby(['id']).count().orderBy('count').tail(5)
+b
+
+ [Row(id=1216525, count=239),
+ Row(id=1136618, count=239),
+ Row(id=1136604, count=239),
+ Row(id=1136580, count=240),
+ Row(id=1178393, count=240)]
+
+------------------------------------------------------------------------------------------------------------
+
+Q) FIND THE 5 BOWLERS WHO HAVE GIVEN MAXIMUM EXTRA RUNS
+
+a = df.filter('extra_runs <> 0')
+b = a.groupby('bowler').sum('total_runs').orderBy('sum(total_runs)').tail(5)
+b
+
+[Row(bowler='I Sharma', sum(total_runs)=221),
+ Row(bowler='DJ Bravo', sum(total_runs)=227),
+ Row(bowler='P Kumar', sum(total_runs)=236),
+ Row(bowler='UT Yadav', sum(total_runs)=259),
+ Row(bowler='SL Malinga', sum(total_runs)=311)]
+------------------------------------------------------------------------------------------------------------
+
+Q) WRITE A QUERY TO USE LIST FOR ISIN OPERATOR AND NOT IS IN OPEARATOR
+NOTE : HERE WE ARE FETCHING THE BOWLERS WHO HAVE GIVEN MAX NUMBER OF EXTRA RUNS MENTIONED IN LIST
+
+a = df.filter( df.extra_runs.isin('noballs','penalty','wides','byes','legbyes'))
+b = a.groupby(['bowler']).count().orderBy('count')
+b.tail(5)
+
+a = df.filter(~ df.extra_runs.isin('noballs','penalty','wides','byes','legbyes'))   /* ~ stands for not in */
+b = a.groupby(['bowler']).count().orderBy('count')
+b.tail(5)
+
+------------------------------------------------------------------------------------------------------------
+
 Q) 
+
+
