@@ -9,7 +9,31 @@ Q) FIND THE NUMBER OF SIX HIT DURING THE ENTIRE COURSE OF IPL DATASET
 a= df.where('batsman_runs == 6')
 a.count()                             /* 8902 is the answer */
 ---------------------------------------------------------------------------------------------------
+Q) FIND THE TOTAL 4s SCORED BY VIRAT KOHLI
 
+a  = df.filter((df.batsman == 'V Kohli') & (df.batsman_runs == 4))
+print(a.count())
+
+/* 504 TOTAL 4s by VIRAT KOHLI */
+---------------------------------------------------------------------------------------------------
+Q) TOTAL RUNS SCORED BY VIRAT KOHLI
+
+a = df.filter(df.batsman == 'V Kohli')
+a.groupby(df.batsman).sum('batsman_runs').show()
+---------------------------------------------------------------------------------------------------
+Q) TOTAL RUNS SCORED BY KOHLI
+
+a = df.filter(df.batsman == 'V Kohli')
+a.select('id').distinct().count()    /*184 */
+
+---------------------------------------------------------------------------------------------------
+Q) 
+
+---------------------------------------------------------------------------------------------------
+Q) 
+
+
+---------------------------------------------------------------------------------------------------
 Q) FIND THE NUMBER OF DOT BALLS DURING ENTIRE COURSE 
 
 a= df.where('total_runs == 0')
@@ -282,5 +306,85 @@ b.show(5)
 | 980987|AB de Villiers|   12|
 ------------------------------------------------------------------------------------------------------------
 
-Q) 
+Q) WRITE A CODE TO FIND NUMBER OF 6 SCORED BY ALL TEAMS
 
+a = df.filter('batsman_runs == 6')
+b = a.groupby(df.batting_team).count().show()
+b
+
++--------------------+-----+
+|        batting_team|count|
++--------------------+-----+
+| Chennai Super Kings| 1050|
+|     Deccan Chargers|  400|
+|    Rajasthan Royals|  784|
+|Royal Challengers...| 1197|
+|Kolkata Knight Ri...| 1017|
+|     Kings XI Punjab| 1073|
+|    Delhi Daredevils|  800|
+|      Mumbai Indians| 1234|
+| Sunrisers Hyderabad|  610|
+|Kochi Tuskers Kerala|   53|
+|       Pune Warriors|  196|
+|Rising Pune Super...|   89|
+|       Gujarat Lions|  155|
+|Rising Pune Super...|   68|
+|      Delhi Capitals|  176|
+------------------------------------------------------------------------------------------------------------
+
+Q) FIND THE TOTAL MATCHES PLAYED BY MUMBAI INDIANS
+
+a = df.filter(df.batting_team == 'Mumbai Indians')
+a.select('id').distinct().count()
+
+/* 203  */
+------------------------------------------------------------------------------------------------------------
+
+Q) FIND THE PERCENTAGE WHEN MUMBAI INDIANS HAVE BATTED FIRST
+
+a = df.filter((df.batting_team == 'Mumbai Indians') & (df.inning == 2))
+first = a.select('id').distinct().count()
+abc = df.filter((df.batting_team == 'Mumbai Indians'))
+total = abc.select('id').distinct().count()
+
+print(first/total)
+
+------------------------------------------------------------------------------------------------------------
+
+Q) FIND THE TOP 5 OVERS IN WHICH HIGHEST RUNS WERE SCORED
+
+df.groupby('over').sum('total_runs').orderBy(('sum(total_runs)')).tail(5)
+
+ [Row(over=15, sum(total_runs)=13449),
+ Row(over=5, sum(total_runs)=13470),
+ Row(over=18, sum(total_runs)=13804),
+ Row(over=16, sum(total_runs)=13989),
+ Row(over=17, sum(total_runs)=14307)]
+
+------------------------------------------------------------------------------------------------------------
+
+Q) FIND THE OVERS WHERE HIGHEST NUMBER OF 6 WERE HIT
+
+a = df.filter('batsman_runs == 6')
+a.groupby('over').count().orderBy('count').tail(5)
+
+ [Row(over=15, count=585),
+ Row(over=16, count=596),
+ Row(over=17, count=704),
+ Row(over=18, count=704),
+ Row(over=19, count=706)]
+------------------------------------------------------------------------------------------------------------
+Q) FIND OUT WHICH OF THE INNINGS HAVE MORE 6s
+
+a = df.filter('batsman_runs == 6')
+a.groupby('inning').count().show()
+
++------+-----+
+|inning|count|
++------+-----+
+|     1| 4701|
+|     2| 4201|
++------+-----+
+------------------------------------------------------------------------------------------------------------
+
+Q) 
